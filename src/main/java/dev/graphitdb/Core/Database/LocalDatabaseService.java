@@ -4,9 +4,9 @@ package dev.graphitdb.Core.Database;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import dev.graphitdb.Core.Exceptions.Database.DatabaseAlreadyExist;
-import dev.graphitdb.Core.Exceptions.Database.DatabaseNotFound;
-import dev.graphitdb.Redis.Interfaces.DatabaseConfigurationManager;
+import dev.graphitdb.Core.Exceptions.Database.DatabaseAlreadyExistException;
+import dev.graphitdb.Core.Exceptions.Database.DatabaseNotFoundException;
+import dev.graphitdb.Redis.Database.DatabaseConfigurationManager;
 
 /**
  * LocalDatabaseService is responsible for managing database operations
@@ -23,14 +23,14 @@ public class LocalDatabaseService implements DatabaseService {
      * Switches to the specified database if it exists.
      *
      * @param database the name of the database to switch to
-     * @throws DatabaseNotFound if the database does not exist
+     * @throws DatabaseNotFoundException if the database does not exist
      */
     @Override
-    public void switchDatabase(String database) throws DatabaseNotFound {
+    public void switchDatabase(String database) throws DatabaseNotFoundException {
         if (redisDatabaseConfig.isDatabaseExist(database)) {
             redisDatabaseConfig.switchDatabase(database);
         } else {
-            throw new DatabaseNotFound(database);
+            throw new DatabaseNotFoundException(database);
         }
     }
 
@@ -38,14 +38,14 @@ public class LocalDatabaseService implements DatabaseService {
      * Creates a new database with the specified name if it does not already exist.
      *
      * @param database the name of the database to create
-     * @throws DatabaseAlreadyExist if the database already exists
+     * @throws DatabaseAlreadyExistException if the database already exists
      */
     @Override
-    public void createDatabase(String database) throws DatabaseAlreadyExist {
+    public void createDatabase(String database) throws DatabaseAlreadyExistException {
         if (!redisDatabaseConfig.isDatabaseExist(database)) {
             redisDatabaseConfig.createDatabase(database);
         } else {
-            throw new DatabaseAlreadyExist(database);
+            throw new DatabaseAlreadyExistException(database);
         }
     }
 
@@ -53,14 +53,14 @@ public class LocalDatabaseService implements DatabaseService {
      * Deletes the specified database if it exists.
      *
      * @param database the name of the database to delete
-     * @throws DatabaseNotFound if the database does not exist
+     * @throws DatabaseNotFoundException if the database does not exist
      */
     @Override
-    public void deleteDatabase(String database) throws DatabaseNotFound {
+    public void deleteDatabase(String database) throws DatabaseNotFoundException {
         if (redisDatabaseConfig.isDatabaseExist(database)) {
             redisDatabaseConfig.deleteDatabase(database);
         } else {
-            throw new DatabaseNotFound(database);
+            throw new DatabaseNotFoundException(database);
         }
     }
 
@@ -68,14 +68,14 @@ public class LocalDatabaseService implements DatabaseService {
      * Drops the specified database if it exists.
      *
      * @param database the name of the database to drop
-     * @throws DatabaseNotFound if the database does not exist
+     * @throws DatabaseNotFoundException if the database does not exist
      */
     @Override
-    public void dropDatabase(String database) throws DatabaseNotFound {
+    public void dropDatabase(String database) throws DatabaseNotFoundException {
         if (redisDatabaseConfig.isDatabaseExist(database)) {
             redisDatabaseConfig.dropDatabase(database);
         } else {
-            throw new DatabaseNotFound(database);
+            throw new DatabaseNotFoundException(database);
         }
     }
 
