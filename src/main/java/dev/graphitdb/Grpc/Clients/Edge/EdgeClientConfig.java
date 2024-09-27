@@ -1,4 +1,4 @@
-package dev.graphitdb.Grpc.Clients;
+package dev.graphitdb.Grpc.Clients.Edge;
 
 import dev.graphitdb.Grpc.Stubs.Edge.EdgeServiceGrpc;
 import io.grpc.ManagedChannel;
@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class GrpcClientConfiguration {
+public class EdgeClientConfig {
 
     @Bean
     public ManagedChannel edgeServiceChannel() {
-        return ManagedChannelBuilder.forAddress("localhost", 50051) // Adjust the address and port
-                .usePlaintext() // Use plaintext for development; use TLS in production
+        return ManagedChannelBuilder.forAddress("localhost", 50051)
+                .usePlaintext()
                 .build();
     }
 

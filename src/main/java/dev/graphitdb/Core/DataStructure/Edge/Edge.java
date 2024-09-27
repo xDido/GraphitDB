@@ -2,13 +2,11 @@ package dev.graphitdb.Core.DataStructure.Edge;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents an edge in a graph connecting two nodes.
@@ -16,13 +14,16 @@ import java.util.Objects;
  * The edge has a source node, a destination node, a label, and a set of properties.
  * </p>
  */
+@RedisHash("Edge")
 public class Edge implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -1839257342348572342L;
 
-    private final String sourceNodeId;
-    private final String destinationNodeId;
+
+    private String edgeId;
+    private String sourceNodeId;
+    private String destinationNodeId;
     private String label;
     private Map<String, String> properties;
 
@@ -40,6 +41,7 @@ public class Edge implements Serializable {
         if (sourceNodeId == null || destinationNodeId == null) {
             throw new IllegalArgumentException("Source and destination node IDs cannot be null");
         }
+        this.edgeId = UUID.randomUUID().toString();
         this.sourceNodeId = sourceNodeId;
         this.destinationNodeId = destinationNodeId;
         this.label = "";
@@ -66,6 +68,7 @@ public class Edge implements Serializable {
         if (sourceNodeId == null || destinationNodeId == null) {
             throw new IllegalArgumentException("Source and destination node IDs cannot be null");
         }
+        this.edgeId = UUID.randomUUID().toString();
         this.sourceNodeId = sourceNodeId;
         this.destinationNodeId = destinationNodeId;
         this.label = label != null ? label : "";
@@ -169,6 +172,10 @@ public class Edge implements Serializable {
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             setProperty(entry.getKey(), entry.getValue());
         }
+    }
+
+    public String getId() {
+        return edgeId;
     }
 
     @Override

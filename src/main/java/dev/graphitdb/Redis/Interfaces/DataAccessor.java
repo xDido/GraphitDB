@@ -3,6 +3,7 @@ package dev.graphitdb.Redis.Interfaces;
 
 import dev.graphitdb.Core.DataStructure.Edge.Edge;
 import dev.graphitdb.Core.DataStructure.Node.Node;
+import org.springframework.cache.annotation.Cacheable;
 
 public interface DataAccessor {
 
@@ -42,8 +43,12 @@ public interface DataAccessor {
     // Delete an edge by its source and destination IDs, returns a boolean indicating success or failure
     public boolean deleteEdge(String sourceNodeId, String destinationNodeId, String label, boolean isOutgoing) throws Exception;
 
-    // Get an edge by its source and destination IDs
-    public Edge getEdge(String sourceNodeId, String destinationNodeId, String label, boolean isOutgoing) throws Exception;
+
+    @Cacheable(value = "edges", key = "#sourceNodeId + #destinationNodeId + #label + #isOutgoing")
+    Edge getEdge(String sourceNodeId, String destinationNodeId, String label, boolean isOutgoing) throws Exception;
+
+    @Cacheable(value = "edges", key = "#edgeId")
+    Edge getEdgeById(String edgeId) throws Exception;
 
     // Get edges associated with a node, supports pagination
     public Iterable<Edge> getEdges(String associatedNodeId, boolean isOutgoing, int page, int size) throws Exception;
