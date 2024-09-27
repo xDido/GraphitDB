@@ -36,7 +36,7 @@ property: key ':' value;
 
 label: STRING;
 key: STRING;
-value: INT | FLOAT | QOUTED_STRING | STRING;
+value: INT | FLOAT | QUOTED_STRING | STRING;
 id: STRING;
 
 database_command: create_database | delete_database | drop_database | switch_database | get_current_database | switch_database_to_default | drop_default_database;
