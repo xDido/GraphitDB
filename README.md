@@ -53,4 +53,10 @@ The system follows a microservice architecture, with each server responsible for
    ```bash
    git clone https://github.com/your-username/GraphitDB.git
    cd GraphitDB
+2. **Build the project**
+   ./gradlew build
+3. **Configure Redis** Ensure Redis is running locally or configure its connection details in application.properties
+   ```
+   spring.redis.host=localhost
+   spring.redis.port=6379
 
