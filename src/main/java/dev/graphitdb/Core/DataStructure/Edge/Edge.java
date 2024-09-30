@@ -27,6 +27,7 @@ public class Edge implements Serializable {
     private String label;
     private Map<String, String> properties;
 
+
     /**
      * Constructs an Edge with the specified source and destination node IDs.
      * <p>
@@ -75,99 +76,42 @@ public class Edge implements Serializable {
         this.properties = properties != null ? new HashMap<>(properties) : new HashMap<>();
     }
 
-    /**
-     * Gets the ID of the source node.
-     *
-     * @return the source node ID
-     */
     public String getSourceNodeId() {
         return sourceNodeId;
     }
 
-    /**
-     * Gets the ID of the destination node.
-     *
-     * @return the destination node ID
-     */
     public String getDestinationNodeId() {
         return destinationNodeId;
     }
 
-    /**
-     * Gets the label of the edge.
-     *
-     * @return the label of the edge
-     */
     public String getLabel() {
         return label;
     }
 
-    /**
-     * Gets the properties of the edge.
-     * <p>
-     * Returns an unmodifiable view of the properties map.
-     * </p>
-     *
-     * @return the properties of the edge
-     */
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
     }
 
-    /**
-     * Adds a property to the edge.
-     *
-     * @param key   the property key
-     * @param value the property value
-     */
     public void addProperty(String key, String value) {
         this.properties.put(key, value);
     }
 
-    /**
-     * Gets the value of a specific property.
-     *
-     * @param key the property key
-     * @return the value of the property, or null if it does not exist
-     */
     public String getProperty(String key) {
         return properties.get(key);
     }
 
-    /**
-     * Checks if a specific property exists.
-     *
-     * @param key the property key
-     * @return true if the property exists, false otherwise
-     */
     public boolean isPropertyExist(String key) {
         return properties.containsKey(key);
     }
 
-    /**
-     * Sets the label of the edge.
-     *
-     * @param label the new label of the edge
-     */
     public void setLabel(String label) {
         this.label = label;
     }
 
-    /**
-     * Sets a property of the edge.
-     *
-     * @param key   the property key
-     * @param value the property value
-     */
     public void setProperty(String key, String value) {
         properties.put(key, value);
     }
 
-    /**
-     * Sets multiple properties of the edge.
-     *
-     * @param properties the properties to set
-     */
     public void setProperties(Map<String, String> properties) {
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             setProperty(entry.getKey(), entry.getValue());

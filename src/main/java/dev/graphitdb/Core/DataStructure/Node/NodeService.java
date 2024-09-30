@@ -6,12 +6,17 @@ import dev.graphitdb.Core.Exceptions.Node.NodeNotFoundException;
 import java.util.Map;
 
 public interface NodeService {
-    public void createNode(Node node);
+    void createNode(Node node);
 
     public void updateNode(String id, String label, Map<String, String> properties) throws NodeNotFoundException;
 
-    public void deleteNode(String id) throws NodeNotFoundException;
+    void deleteNode(String id) throws NodeNotFoundException;
 
-    public Iterable<Node> getNode(Iterable<String> Ids);
+    Node getNode(String id) throws NodeNotFoundException;
 
+    Iterable<Node> getAllNodes();
+
+    Iterable<Edge> getOutgoingEdges(String nodeId) throws Exception;
+
+    Iterable<Edge> getIncomingEdges(String nodeId) throws Exception;
 }

@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.util.Set;
 
 @Component
-public class RedisDatabaseManager implements DatabaseConfigurationManager {
+public class RedisDatabaseManager implements RedisDatabase {
 
     private static final String CURRENT_DATABASE_KEY = "current_database";
     private static final String DATABASES_KEY = "databases";

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -30,20 +30,11 @@ public class RedisConfig {
     @Value("${spring.data.redis.password:}")
     private String redisPassword;
 
-    @Value("${spring.redis.lettuce.pool.max-active:20}")
-    private int maxActive;
-
-    @Value("${spring.redis.lettuce.pool.max-idle:10}")
-    private int maxIdle;
-
-    @Value("${spring.redis.lettuce.pool.min-idle:5}")
-    private int minIdle;
-
-    @Value("${spring.redis.lettuce.pool.max-wait:1000}")
-    private long maxWaitMillis;
+    @Value("${spring.redis.lettuce.timeout}")
+    private long commandTimeoutMillis;
 
     /**
-     * Creates a LettuceConnectionFactory with configured Redis connection settings for cluster.
+     * Creates a LettuceConnectionFactory with configured Redis connection settings for a Redis cluster.
      *
      * @return LettuceConnectionFactory configured for Redis cluster settings.
      */
@@ -56,12 +47,12 @@ public class RedisConfig {
             redisClusterConfiguration.setPassword(redisPassword);
         }
 
-        LettucePoolingClientConfiguration poolingClientConfiguration = LettucePoolingClientConfiguration.builder()
-                .commandTimeout(Duration.ofMillis(maxWaitMillis))
+        LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
+                .commandTimeout(Duration.ofMillis(commandTimeoutMillis))
                 .clientResources(clientResources())
                 .build();
 
-        return new LettuceConnectionFactory(redisClusterConfiguration, poolingClientConfiguration);
+        return new LettuceConnectionFactory(redisClusterConfiguration, clientConfiguration);
     }
 
     /**

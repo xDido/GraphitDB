@@ -3,6 +3,9 @@ package dev.graphitdb.Core.Database;
 import dev.graphitdb.Core.Distribute.PartitionManager;
 import dev.graphitdb.Core.Exceptions.Database.DatabaseAlreadyExistException;
 import dev.graphitdb.Core.Exceptions.Database.DatabaseNotFoundException;
+import dev.graphitdb.Grpc.Clients.Database.DatabaseClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -15,9 +18,12 @@ import java.util.List;
  * LocalDatabaseService instances across nodes in a non-blocking manner
  * using asynchronous operations.
  */
+@Component
 public class DistributedDatabaseService implements DatabaseService {
-
+    @Autowired
     private LocalDatabaseService localDatabaseService;
+    @Autowired
+    private DatabaseClient databaseClient;
 
     @Override
     public void switchDatabase(String database) throws DatabaseNotFoundException {
@@ -44,7 +50,7 @@ public class DistributedDatabaseService implements DatabaseService {
                 final int serverId = i;
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        localDatabaseService.switchDatabase(database);
+                        databaseClient.switchDatabase(database);
                         logger.info("Switched database on server " + serverId + " to: " + database);
                     } catch (Exception e) {
                         logger.severe("Failed to switch database on server " + serverId + ": " + e.getMessage());
@@ -85,7 +91,7 @@ public class DistributedDatabaseService implements DatabaseService {
                 final int serverId = i;
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        localDatabaseService.createDatabase(database);
+                        databaseClient.createDatabase(database);
                         logger.info("Created database on server " + serverId + ": " + database);
                     } catch (Exception e) {
                         logger.severe("Failed to create database on server " + serverId + ": " + e.getMessage());
@@ -125,7 +131,7 @@ public class DistributedDatabaseService implements DatabaseService {
                 final int serverId = i;
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        localDatabaseService.deleteDatabase(database);
+                        databaseClient.deleteDatabase(database);
                         logger.info("Deleted database on server " + serverId + ": " + database);
                     } catch (Exception e) {
                         logger.severe("Failed to delete database on server " + serverId + ": " + e.getMessage());
@@ -165,7 +171,7 @@ public class DistributedDatabaseService implements DatabaseService {
                 final int serverId = i;
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        localDatabaseService.dropDatabase(database);
+                        databaseClient.dropDatabase(database);
                         logger.info("Dropped database on server " + serverId + ": " + database);
                     } catch (Exception e) {
                         logger.severe("Failed to drop database on server " + serverId + ": " + e.getMessage());
@@ -186,7 +192,6 @@ public class DistributedDatabaseService implements DatabaseService {
 
     @Override
     public String getCurrentDatabase() {
-        // Return the global state of the current database, possibly a union of all local instances
         return localDatabaseService.getCurrentDatabase();
     }
 
@@ -207,8 +212,8 @@ public class DistributedDatabaseService implements DatabaseService {
                 final int serverId = i;
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        localDatabaseService.switchToDefaultDatabase();
-                        logger.info("Switched to default database on server " + serverId);
+                        if (databaseClient.switchToDefaultDatabase())
+                            logger.info("Switched to default database on server " + serverId);
                     } catch (Exception e) {
                         logger.severe("Failed to switch to default database on server " + serverId + ": " + e.getMessage());
                     }
@@ -240,8 +245,8 @@ public class DistributedDatabaseService implements DatabaseService {
             } else {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        localDatabaseService.dropDefaultDatabase();
-                        logger.info("Dropped default database on server ");
+                        if (databaseClient.dropDefaultDatabase())
+                            logger.info("Dropped default database on server ");
                     } catch (Exception e) {
                         logger.severe("Failed to drop default database on server " + e.getMessage());
                     }

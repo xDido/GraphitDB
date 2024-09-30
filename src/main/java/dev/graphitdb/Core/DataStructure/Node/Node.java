@@ -21,6 +21,7 @@ public class Node implements Serializable {
     private String label;
     private Map<String, String> properties;
 
+
     public Node() {
         this.id = UUID.randomUUID().toString();
         this.label = "";

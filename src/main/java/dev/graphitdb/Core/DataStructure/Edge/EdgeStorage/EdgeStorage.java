@@ -2,7 +2,7 @@ package dev.graphitdb.Core.DataStructure.Edge.EdgeStorage;
 
 import dev.graphitdb.Core.DataStructure.Edge.Edge;
 import dev.graphitdb.Core.Exceptions.Redis.RedisEdgeException;
-import dev.graphitdb.Redis.Interfaces.RedisDataManager;
+import dev.graphitdb.Redis.Data.Edge.RedisEdgeManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,40 +14,28 @@ import java.util.Optional;
 public class EdgeStorage implements EdgeRepository {
 
     @Autowired
-    private RedisDataManager redisDataManager;
+    private RedisEdgeManager redisEdgeManager;
 
-    public EdgeStorage(RedisDataManager redisDataManager) {
-        this.redisDataManager = redisDataManager;
+    public EdgeStorage(RedisEdgeManager redisEdgeManager) {
+        this.redisEdgeManager = redisEdgeManager;
     }
 
-    /**
-     * Save an edge entity.
-     *
-     * @param entity the edge entity to save
-     * @return the saved edge entity
-     * @throws RedisEdgeException if the save operation fails
-     */
     @Override
     public <S extends Edge> S save(S entity, boolean isOutgoing) {
         try {
-            System.out.println(STR."Saving edge: \{entity.getId()}");
-            redisDataManager.saveEdge(entity, isOutgoing);
+            System.out.println("Saving edge: " + entity.getId());
+            redisEdgeManager.saveEdge(entity, isOutgoing);
             return entity;
         } catch (Exception e) {
-            System.err.println(STR."Failed to save edge: \{e.getMessage()}");
+            System.err.println("Failed to save edge: " + e.getMessage());
+            throw new RedisEdgeException("Failed to save edge", e);
         }
-        return entity;
     }
 
-    /**
-     * @param entity the edge entity to save
-     * @param <S>    the edge entity type
-     * @return the saved edge entity
-     */
-    @Override
-    public <S extends Edge> S save(S entity) {
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+    public Iterable<Edge> findAllByNodeId(String nodeId, boolean isOutgoing) throws Exception {
+        return redisEdgeManager.getEdges(nodeId, isOutgoing, 5, 10);
     }
+
 
     @Override
     public <S extends Edge> Iterable<S> saveAll(Iterable<S> entities) {
@@ -60,23 +48,66 @@ public class EdgeStorage implements EdgeRepository {
     @Override
     public Optional<Edge> findById(String id) {
         try {
-            Edge edge = redisDataManager.getEdgeById(id);
+            Edge edge = redisEdgeManager.getEdgeById(id);
             return Optional.ofNullable(edge);
         } catch (Exception e) {
-            System.err.println(STR."Failed to find edge by ID: \{e.getMessage()}");
+            System.err.println("Failed to find edge by ID: " + e.getMessage());
+            return Optional.empty();
         }
-        return Optional.empty();
     }
 
     @Override
     public boolean existsById(String id) {
         try {
-            return redisDataManager.getEdgeById(id) != null;
+            return redisEdgeManager.getEdgeById(id) != null;
         } catch (Exception e) {
-
-            System.err.println(STR."Failed to check if edge exists by ID: \{e.getMessage()}");
+            System.err.println("Failed to check if edge exists by ID: " + e.getMessage());
             return false;
         }
+    }
+
+
+    @Override
+    public Iterable<Edge> findAllById(Iterable<String> ids) {
+        List<Edge> edges = new ArrayList<>();
+        for (String id : ids) {
+            findById(id).ifPresent(edges::add);
+        }
+        return edges;
+    }
+
+    @Override
+    public long count() {
+        return 0;
+    }
+
+    public void deleteById(String id) {
+        try {
+            redisEdgeManager.deleteEdgeById(id);
+        } catch (Exception e) {
+            System.err.println("Failed to delete edge by ID: " + e.getMessage());
+            throw new RedisEdgeException("Failed to delete edge", e);
+        }
+    }
+
+
+    public void delete(Edge edge, boolean isOutgoing) {
+        try {
+            redisEdgeManager.deleteEdgeById(edge.getId());
+        } catch (Exception e) {
+            System.err.println("Failed to delete edge: " + e.getMessage());
+            throw new RedisEdgeException("Failed to delete edge", e);
+        }
+    }
+
+    @Override
+    public void deleteAllBySourceNodeId(String sourceNodeId) throws Exception {
+
+    }
+
+    @Override
+    public <S extends Edge> S save(S entity) {
+        throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 
     @Override
@@ -85,67 +116,23 @@ public class EdgeStorage implements EdgeRepository {
     }
 
     @Override
-    public Iterable<Edge> findAllById(Iterable<String> ids) {
-        throw new UnsupportedOperationException("Unimplemented method 'findAllById'");
-    }
-
-    public Iterable<Edge> findAllByNodeId(String id, boolean isOutgoing) throws Exception {
-        List<Edge> result = new ArrayList<>();
-        Iterable<Edge> Outedge = redisDataManager.getEdges(id, true, 5, 20);
-        Iterable<Edge> Inedge = redisDataManager.getEdges(id, false, 5, 20);
-        if (isOutgoing) {
-            if (Outedge != null) {
-                result.add((Edge) Outedge);
-            }
-        } else {
-            if (Inedge != null) {
-                result.add((Edge) Inedge);
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public long count() {
-        throw new UnsupportedOperationException("Unimplemented method 'count'");
-    }
-
-    @Override
-    public void deleteById(String edgeId) {
-        redisDataManager.deleteEdgeById(edgeId);
-    }
-
-    /**
-     * @param entity
-     */
-    @Override
     public void delete(Edge entity) {
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+
     }
 
     @Override
-    public void delete(Edge entity, boolean isOutgoing) throws Exception {
-        redisDataManager.deleteEdge(entity.getSourceNodeId(), entity.getDestinationNodeId(), entity.getLabel(), isOutgoing);
-    }
+    public void deleteAllById(Iterable<? extends String> strings) {
 
-    @Override
-    public void deleteAllById(Iterable<? extends String> ids) {
-        for (String id : ids) {
-            redisDataManager.deleteEdgeById(id);
-        }
-    }
-    @Override
-    public void deleteAllBySourceNodeId(String sourceNodeId) throws Exception {
-        redisDataManager.deleteEdges(sourceNodeId, true);
-    }
-
-    @Override
-    public void deleteAll() {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
     }
 
     @Override
     public void deleteAll(Iterable<? extends Edge> entities) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
+
     }
+
+    @Override
+    public void deleteAll() {
+
+    }
+
 }

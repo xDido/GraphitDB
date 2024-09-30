@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * It provides methods to create, delete, and manage indices as well as to associate nodes with specific indices.
  */
 @Component
-public class RedisIndexDataManager implements IndexDataManager {
+public class RedisIndexManager implements IndexDataManager {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;

@@ -1,7 +1,7 @@
 package dev.graphitdb.Redis.Database;
 
 
-public interface DatabaseConfigurationManager {
+public interface RedisDatabase {
 
     /**
      * Switches to the specified database.
