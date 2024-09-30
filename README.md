@@ -37,4 +37,20 @@ The system follows a microservice architecture, with each server responsible for
 - **gRPC Clients and Servers**: Each server instance includes a gRPC server and client for inter-node communication.
 - **Redis**: Used as a caching layer for fast retrieval of graph data and to manage indices.
 
-### Diagram
+
+## Installation
+
+### Prerequisites
+- **Java 17+** (JDK 22 recommended)
+- **Maven** (for building the project)
+- **Redis** (for indexing and caching)
+- **Docker** (optional, for containerization)
+- **gRPC** (for communication between servers)
+
+### Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/GraphitDB.git
+   cd GraphitDB
+
